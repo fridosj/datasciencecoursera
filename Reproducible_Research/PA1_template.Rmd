@@ -1,0 +1,86 @@
+---
+title: "Project 1"
+author: "fridosj"
+date: "06/06/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Code for reading in the dataset and/or processing the data
+```{r  ,,results='hide'}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r cars}
+
+df <- read.csv("activity.csv")
+head(df)
+```
+
+## Histogram of the total number of steps taken each day
+
+```{r}
+df1 <- df %>% group_by(date) %>% summarise(steps=sum(steps,na.rm=FALSE))
+head(df1,n=10)
+ggplot(df1,aes(steps))+geom_histogram(fill="#ff0099",binwidth = 1000)+labs(title = "total number of steps for each day",x="steps",y="frequency")
+
+
+```
+
+## Mean and median number of steps taken each day
+```{r}
+mean_steps <- mean(df1$steps,na.rm = TRUE)
+median_steps <- median(df1$steps,na.rm = TRUE)
+mean_steps
+median_steps
+```
+## Time series plot of the average number of steps taken
+```{r}
+df2 <- df %>% group_by(interval) %>% summarise(steps=mean(steps,na.rm=TRUE))
+ggplot(df2,aes(interval,steps))+geom_line(color="#ff0099",size=1)
+```
+## The 5-minute interval that, on average, contains the maximum number of steps
+```{r}
+maxsteps <- max(df2$steps)
+maxinterval <- as.numeric(df2[df2$steps==max(df2$steps),][1,1])
+maxinterval
+```
+
+## Code to describe and show a strategy for imputing missing data
+```{r}
+df_imputated <- df %>% mutate(Steps=ifelse(is.na(steps) ,median(steps,na.rm = TRUE),steps)) %>% subset(select=-c(steps)) %>% group_by(date) %>% summarise(Steps=sum(Steps,na.rm=FALSE))
+
+```
+
+
+## Histogram of the total number of steps taken each day after missing values are imputed
+```{r}
+ggplot(df_imputated,aes(Steps))+geom_histogram(fill="#ff0099",binwidth = 1000)+labs(title = "total number of steps for each day after imputation",x="steps",y="frequency")
+
+```
+
+## Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
+```{r}
+mean_steps_imp <- mean(df_imputated$Steps,na.rm = TRUE)
+mean_steps_imp
+median_steps_imp <- median(df_imputated$Steps,na.rm = TRUE)
+median_steps_imp
+```
+#### After imputation, the mean got decreased by 1411 steps and the median got decreased by 370.
+
+## Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+```{r}
+df4 <- df %>% mutate(weekday=weekdays(as.Date(date))) %>% mutate(weekday_or_weekend=ifelse(weekday=="Saturday","weekend","weekday")) %>%mutate(weekday_or_weekend=ifelse(weekday=="Sunday","weekend","weekday"))
+df4 <- df4 %>% group_by(interval,weekday_or_weekend) %>% summarise(steps=mean(steps,na.rm=TRUE))
+head(df4)
+```
+
+## Make a panel plot containing a time series plot (i.e.type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+```{r}
+ggplot(df4,aes(interval,steps,color=weekday_or_weekend))+geom_line()+facet_grid(weekday_or_weekend~.) +labs(title = "Average daily steps across day type")
+
+```

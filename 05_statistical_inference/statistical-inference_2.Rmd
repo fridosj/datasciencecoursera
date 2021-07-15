@@ -1,0 +1,58 @@
+---
+title: "statistical inference-2"
+author: "fridosj"
+date: "04/07/2021"
+output: pdf_document
+---
+# Overview Part 2: Basic Inferential Data Analysis
+Analysing the Toothgrowth data and checking the confidence interval to compare the toothgrowth by Supp and
+Dose
+The data set used for the analysis reports the effects of vitamin C on tooth growth in guinea pigs. Each of the 60
+animals received one of three dose levels of vitamin C (0.5, 1, and 2 mg/day) by one of two delivery methods,
+orange juice (OJ) or ascorbic acid (VC) and the length of odontoblasts, the cells responsible for tooth growth,
+were recorded.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r }
+data("ToothGrowth")
+summary(ToothGrowth)
+```
+
+Testing supplement type’s influence on tooth growth: In this first test we want to see if the type of supplement given
+has a significant influence on the length of odontoblasts . Based on the exploratory analysis showed above we proceed to
+a one-sided test, with hypothesis stated as follow : • H0 : Both type of supplement (OJ/VC) have the sam
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+OJ<-ToothGrowth[ToothGrowth$supp=="OJ",]
+VC<-ToothGrowth[ToothGrowth$supp=="VC",]
+dosehalf<-ToothGrowth[ToothGrowth$dose==0.5,]
+dose1<-ToothGrowth[ToothGrowth$dose==1,]
+dose2<-ToothGrowth[ToothGrowth$dose==2,]
+t.test(OJ$len-VC$len)
+```
+
+With an alpha set at 5%, We can reject the H0 hypothesis as p value is less than alpha. The 95% confidence
+interval of difference doesn’t contain zero and it’s fully on the positive side Thus OC group has Larger Toothlength
+as compared to VC group
+Testing dose influence on tooth growth : In this second test we want to see if the ammount of supplement given has a
+significant influence on the length of odontoblasts . Based on the exploratory analysis showed above we proceed to a onesided test, with hypothesis stated as follow : • H0 : The amount of supplement yields the same influence (or lack thereof) on
+the tooth growth. • Ha : Bigger doses induce better tooth growth.
+```{r}
+t.test(dose2$len-dose1$len)$conf
+
+```
+
+```{r}
+t.test(dose2$len-dose1$len)$conf
+```
+
+As 95% confidence interval of difference doesn’t contain zero in both cases and it’s fully on the positive side Thus
+Dose2 group has Larger Toothlength as compared to Dose1 group and Dose1 group has Larger Toothlength as
+compared to Dose0.5 group
+
